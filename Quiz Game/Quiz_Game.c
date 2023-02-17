@@ -5,25 +5,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-typedef struct quiz
+typedef struct node
 {
     // question,options,answer char
     char question[85];
-    char answer[85];
-    char options[46];
-} quiz;
+    char answer[20];
+    char options[85];
+    struct node *next;
+} node;
 
 // maximum Number of questions you can add(buckets)
 #define N 10000
-quiz *table[N];
+node *table[N];
 
-char answer; // longest word is of length 45 + '\n'char name;
-
-int que_count = 0;
 int ans_count = 0;
 long long int h = 0;
 
-bool check(const char *answer, int a);
+void check(int a);
 bool unload();
 void show_record();
 void reset_score();
@@ -41,31 +39,38 @@ bool load()
     char word[85];
     // Read the file till the End Of File(EOF)
     int h = 0;
-    quiz *cursor = malloc(sizeof(quiz)); // allocate space for the quiz cursor
     while (fgets(word, 82, file) != 0)
     {
-        if (cursor == NULL)
-        {
-            return false;
-        }
         switch (sw)
         {
         case 0:
+            node *cursor = malloc(sizeof(node)); // allocate space for the node cursor
+            if (cursor == NULL)
+            {
+                return false;
+            }
             // Add question to the struct
             strcpy(cursor->question, word);
             sw = 2;
             break;
         case 2:
-            // Add answer and option
-            strcpy(cursor->answer, word);
+            // Add options to the struct
+            strcpy(cursor->options, word); // copy word to cursor->options
             sw = 90;
             break;
         case 90:
-            // Add options to the struct
-            strcpy(cursor->options, word); // copy word to cursor->options
-            table[h] = cursor;             // save all the values assigned to cursor to table at number 'h'
+            // Add answer and option
+            strcpy(cursor->answer, word);
+            table[h] = cursor; // save all the values assigned to cursor to table at number 'h'
+            if (h == 0)
+            {
+                cursor->next = NULL; // for the first word next location is NULL
+            }
+            else
+            {
+                cursor->next = table[h];
+            }
             h++;
-            quiz *cursor = malloc(sizeof(quiz)); // allocate space for the quiz cursor
         default:
             sw = 0;
             break;
@@ -82,6 +87,7 @@ int main()
     bool loaded = load();
     if (!loaded)
     {
+        unload();
         printf("Could not load\n");
         return 1;
     }
@@ -107,29 +113,59 @@ int main()
 
     if (ch == 'S' || ch == 's')
     {
-        char name;
+        char name[20];
         system("clear");               // Clears the terminal screen
         printf("What is your name\n"); // Name of the user
         scanf("%s", &name);
-        int a = (rand() % (19)); // To Get a random number between 0 - 19
-        for (int i = a; i <= a + 10; i++)
+        int q = 1;               // Question Number
+        int a = (rand() % (18)); // To Get a random number between 0 - 19
+        for (int i = a; i < a + 10; i++)
         {
-            int q = 1;               // Question Number
             system("clear");         // clear the terminal screen
-            quiz *cursor = table[i]; // assign the question at number a to the cursor
-            printf("Que %d", q);
+            node *cursor = table[i]; // assign the question at number a to the cursor
+            printf("Que %d ", q);
             // prints question and options
-            printf("%s ", cursor->question);
-            printf("%s ", cursor->options);
+            printf("%s\n", cursor->question);
+            printf("%s\n", cursor->options);
             printf("What is your Answer\n");
-            scanf("%s", &answer); // take answer from the user
-
-            bool corn = check(answer, a);          // check if the user answer is correct or not
-            printf("your score is %i", ans_count); // print the count answer
-
-            for (long long int k = 0; k < 1784000000; k++) // wait for 5.010222
+            check(i);                                      // check if the user answer is correct or not
+            printf("your score is %d\n", ans_count);       // print the count answer
+            for (long long int k = 0; k < 1784000000; k++) // wait for 5.010222 sec
             {
             }
+            q++;
+        }
+        float score = (float)ans_count * 1000000;
+        if (score > 0.00 && score < 1000000)
+        {
+            printf("\n\n\t\t**************** CONGRATULATION *****************");
+            printf("\n\t You won $%.2f", score);
+        }
+
+        else if (score == 1000000.00)
+        {
+            printf("\n\n\n \t\t**************** CONGRATULATION ****************");
+            printf("\n\t\t\t\t YOU ARE A MILLIONAIRE!!!!!!!!!");
+            printf("\n\t\t You won $%.2f", score);
+            printf("\t\t Thank You!!");
+        }
+        else
+        {
+            printf("\n\n\t******** SORRY YOU DIDN'T WIN ANY CASH ********");
+            printf("\n\t\t Thanks for your participation");
+            printf("\n\t\t TRY AGAIN");
+        }
+        printf("\n\n Press Y if you want to play next game ");
+        printf("Press Any Other key to Quit");
+        char ch;
+        scanf("%s", &ch);
+        if (ch == 'y' || ch == 'Y')
+        {
+            main();
+        }
+        else
+        {
+            edit_score(score, name);
         }
     }
     else if (ch == 'v' || ch == 'V')
@@ -159,7 +195,7 @@ int main()
         printf("\n >> No negative marking for wrong answers");
 
         printf("\n\n\t*********************BEST OF LUCK*********************************");
-        printf("\n\n\t*****C PROGRAM QUIZ GAME is developed by code WITH C TEAM*****\n\n\n\n");
+        printf("\n\n\t*****C PROGRAM node GAME is developed by code WITH C TEAM*****\n\n\n\n");
         printf("\n\n\tPress Any Key To Go Back\n\n");
         char x;
         scanf("%c", &x);
@@ -177,22 +213,24 @@ int main()
 }
 
 // Check if the answer is correct
-bool check(const char *answer, int x)
+void check(int i)
 {
-    quiz *cursor = table[x]; // assign the value stored in int x to cursor
+    char answer[20];
+    scanf("%s", &answer);    // take answer from the user
+    node *cursor = table[i]; // assign the value stored in int x to cursor
+    int l = strlen(cursor->answer);
+    cursor->answer[l - 1] = '\000';
     // compare the answer
     if (strcasecmp(answer, cursor->answer) == 0) // check whether the answer matches with stored answer
     {
         ans_count++; // if correct increase the count answer count
-        return true;
     }
     // if the answer is not correct print incorrect answer
     else
     {
-        printf("INCORRECT ANSWER");
-        printf("%s is the correct answer", cursor->answer);
+        printf("\n\nINCORRECT ANSWER\n");
+        printf("%s is the correct answer ", cursor->answer);
     }
-    return false;
 }
 
 bool unload()
@@ -200,10 +238,10 @@ bool unload()
     // iterates for every value in the table till N-1
     for (long int i = 0; i < N; i++)
     {
-        quiz *cursor = table[i]; // assigns value of the quiz table's i location
+        node *cursor = table[i]; // assigns value of the node table's i location
         while (cursor != NULL)
         {
-            quiz *temp = cursor; // assigns value of the quiz cursor
+            node *temp = cursor; // assigns value of the node cursor
             free(temp);          // free temp
         }
         if (cursor == NULL || i == N - 1) // check if end of the list is NULL
@@ -217,7 +255,7 @@ bool unload()
 void show_record()
 {
     system("clear");
-    char name[20];
+    char name;
     float score;
     FILE *file = fopen("score.txt", "r");
     fscanf(file, "%s %f", &name, &score);
