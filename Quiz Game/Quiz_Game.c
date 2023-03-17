@@ -70,8 +70,8 @@ bool load()
             {
                 cursor->next = table[h];
             }
-            h++;
         default:
+            h++;
             sw = 0;
             break;
         }
@@ -116,7 +116,7 @@ int main()
         char name[20];
         system("clear");               // Clears the terminal screen
         printf("What is your name\n"); // Name of the user
-        scanf("%s", &name);
+        fgets(name, sizeof(name), stdin);
         int q = 1;               // Question Number
         int a = (rand() % (18)); // To Get a random number between 0 - 19
         for (int i = a; i < a + 10; i++)
@@ -135,32 +135,35 @@ int main()
             }
             q++;
         }
+        system("clear");
         float score = (float)ans_count * 1000000;
-        if (score > 0.00 && score < 1000000)
+        if (score > 0.00 && score < 10000000.00)
         {
             printf("\n\n\t\t**************** CONGRATULATION *****************");
-            printf("\n\t You won $%.2f", score);
+            printf("\n\t\t\t You won $%.2f", score);
+            printf(" Thank You!!");
         }
 
-        else if (score == 1000000.00)
+        else if (score == 10000000.00)
         {
             printf("\n\n\n \t\t**************** CONGRATULATION ****************");
-            printf("\n\t\t\t\t YOU ARE A MILLIONAIRE!!!!!!!!!");
-            printf("\n\t\t You won $%.2f", score);
-            printf("\t\t Thank You!!");
+            printf("\n\t\t\t\t YOU ARE A MILLIONAIRE");
+            printf("\n\t\t\t You won $%.2f", score);
+            printf(" Thank You!!");
         }
         else
         {
             printf("\n\n\t******** SORRY YOU DIDN'T WIN ANY CASH ********");
             printf("\n\t\t Thanks for your participation");
-            printf("\n\t\t TRY AGAIN");
+            printf("\n\t\t\t TRY AGAIN");
         }
         printf("\n\n Press Y if you want to play next game ");
-        printf("Press Any Other key to Quit");
+        printf("Press Any Other key to Quit ");
         char ch;
         scanf("%s", &ch);
         if (ch == 'y' || ch == 'Y')
         {
+            ans_count = 0;
             main();
         }
         else
@@ -216,10 +219,8 @@ int main()
 void check(int i)
 {
     char answer[20];
-    scanf("%s", &answer);    // take answer from the user
     node *cursor = table[i]; // assign the value stored in int x to cursor
-    int l = strlen(cursor->answer);
-    cursor->answer[l - 1] = '\000';
+    fgets(answer, 20, stdin);
     // compare the answer
     if (strcasecmp(answer, cursor->answer) == 0) // check whether the answer matches with stored answer
     {
@@ -229,7 +230,7 @@ void check(int i)
     else
     {
         printf("\n\nINCORRECT ANSWER\n");
-        printf("%s is the correct answer ", cursor->answer);
+        printf("%sis the correct answer ", cursor->answer);
     }
 }
 
@@ -283,7 +284,7 @@ void edit_score(float score, char plnm[20])
     float sc;
     char nm[20];
     FILE *f;
-    f = fopen("score.txt", "r");
+    f = fopen("score.txt", "a+");
     fscanf(f, "%s%f", &nm, &sc);
     if (score >= sc)
     {
