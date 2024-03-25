@@ -1,6 +1,6 @@
-- 👋 Hi, I’m @Sneakyturtle22
-- 👀 I’m interested in Any Thing that includes Technology or some technological solution
-- 🌱 I’m currently learning Python, HTML, CSS , Javascript and C 
+- 👋 Hi, I’m Mritunjay
+- 👀 I’m interested in Any Thing that includes Technology or require technological solution
+- 🌱 I’m currently learning Python, HTML, CSS , Javascript and C++
 
 
 <!---
